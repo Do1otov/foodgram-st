@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'djoser',
     'users.apps.UsersConfig',
     'core.apps.CoreConfig',
+    'recipes.apps.RecipesConfig',
 ]
 
 AUTH_USER_MODEL = 'users.User'

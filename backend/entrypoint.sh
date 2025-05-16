@@ -5,6 +5,9 @@ python manage.py migrate --noinput
 echo "Статика..."
 python manage.py collectstatic --noinput
 
+echo "Загрузка ингредиентов..."
+python manage.py load_ingredients data/ingredients.json
+
 if [ "$DJANGO_SUPERUSER_EMAIL" ]; then
   echo "Суперпользователь..."
   python manage.py createsuperuser \
