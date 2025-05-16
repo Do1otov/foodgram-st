@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+from django.core.validators import MinLengthValidator
+from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
@@ -15,15 +17,18 @@ class User(AbstractUser):
     username = models.CharField(
         verbose_name='Никнейм',
         unique=True,
-        max_length=150
+        max_length=150,
+        validators=[MinLengthValidator(1, _('Имя пользователя не может быть пустым.'))]
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=150
+        max_length=150,
+        validators=[MinLengthValidator(1, _('Имя не может быть пустым.'))]
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=150
+        max_length=150,
+        validators=[MinLengthValidator(1, _('Фамилия не может быть пустой.'))]
     )
     avatar = models.ImageField(
         verbose_name='Аватар',
@@ -50,7 +55,7 @@ class User(AbstractUser):
     )
 
     class Meta:
-        verbose_name = 'пользователя'
+        verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ['-date_joined']
 
