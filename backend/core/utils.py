@@ -1,4 +1,5 @@
 import shortuuid
+
 from core.constants import SHORT_LINK_CODE_MAX_LEN
 
 

@@ -1,26 +1,24 @@
-from rest_framework.pagination import PageNumberPagination
-from rest_framework import viewsets, status, permissions
-from django_filters.rest_framework import DjangoFilterBackend
 from django.http import Http404, HttpResponse
-from rest_framework.response import Response
-from rest_framework.decorators import action
 from django.utils.timezone import localdate
-from ..models import Recipe, Favorite, ShoppingCart, IngredientInRecipe
-from ..serializers import RecipeSerializer, ShortRecipeSerializer
-from ..filters import RecipeFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
 from core.constants import MONTHS_IN_RUSSIAN_MAP
+from core.pagination import LimitPageNumberPagination
 
-
-class RecipePagination(PageNumberPagination):
-    page_size = 6
-    page_size_query_param = 'limit'
+from ..filters import RecipeFilter
+from ..models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
+from ..serializers import RecipeSerializer, ShortRecipeSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    pagination_class = RecipePagination
+    pagination_class = LimitPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
@@ -96,7 +94,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe_names = sorted(recipes.values_list('name', flat=True))
         date = localdate()
         date_str = f'{date.day} {MONTHS_IN_RUSSIAN_MAP[date.month]} {date.year} г.'
-        recipe_line = f'{'Рецепт' if len(recipe_names) == 1 else 'Рецепты'}: {', '.join(recipe_names)}.'
+        recipe_line = f'{"Рецепт" if len(recipe_names) == 1 else "Рецепты"}: {", ".join(recipe_names)}.'
 
         ingredients = {}
         for item in IngredientInRecipe.objects.filter(recipe__in=recipes):

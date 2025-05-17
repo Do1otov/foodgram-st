@@ -1,6 +1,7 @@
-from rest_framework.views import APIView
 from django.http import Http404
 from django.shortcuts import redirect
+from rest_framework.views import APIView
+
 from ..models import Recipe
 
 

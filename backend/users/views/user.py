@@ -1,15 +1,19 @@
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
+
+from core.pagination import LimitPageNumberPagination
+
+from ..models import Subscription, User
 from ..permissions import UserViewSetPermission
-from ..models import User, Subscription
-from ..serializers import UserCreateSerializer, UserSerializer, UserWithRecipesSerializer
+from ..serializers import (UserCreateSerializer, UserSerializer,
+                           UserWithRecipesSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [UserViewSetPermission]
+    pagination_class = LimitPageNumberPagination
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -99,8 +103,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user = request.user
         queryset = User.objects.filter(subscribers__user=user)
 
-        paginator = PageNumberPagination()
-        paginator.page_size_query_param = 'limit'
+        paginator = LimitPageNumberPagination()
         result_page = paginator.paginate_queryset(queryset, request)
 
         serializer = UserWithRecipesSerializer(result_page, many=True, context={'request': request})

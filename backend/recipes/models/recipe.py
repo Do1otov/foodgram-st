@@ -1,12 +1,14 @@
-from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MinLengthValidator
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
-from core.utils import generate_short_link_code
-from core.constants import SHORT_LINK_CODE_MAX_LEN, SHORT_LINK_CODE_MAX_ATTEMPTS_GENERATE
-from .ingredient import Ingredient
+from django.core.validators import (MaxValueValidator, MinLengthValidator,
+                                    MinValueValidator)
+from django.db import models
 
+from core.constants import (SHORT_LINK_CODE_MAX_ATTEMPTS_GENERATE,
+                            SHORT_LINK_CODE_MAX_LEN)
+from core.utils import generate_short_link_code
+
+from .ingredient import Ingredient
 
 User = get_user_model()
 

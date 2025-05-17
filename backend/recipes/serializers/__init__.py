@@ -1,2 +1,4 @@
-from .ingredient import IngredientSerializer, IngredientInRecipeWriteSerializer, IngredientInRecipeReadSerializer
+from .ingredient import (IngredientInRecipeReadSerializer,
+                         IngredientInRecipeWriteSerializer,
+                         IngredientSerializer)
 from .recipe import RecipeSerializer, ShortRecipeSerializer
