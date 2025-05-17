@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Ingredient, Recipe, Favorite, ShoppingCart
+from .models import Ingredient, Recipe, Favorite, ShoppingCart, IngredientInRecipe
 from .serializers import IngredientSerializer, RecipeSerializer, ShortRecipeSerializer
 from django.http import Http404
 from django.shortcuts import redirect
@@ -9,8 +9,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from .filters import IngredientFilter
+from django.http import HttpResponse
 from rest_framework.pagination import PageNumberPagination
 from .filters import RecipeFilter
+from django.db.models import Sum, F
+from django.utils.timezone import localdate
+from core.constants import MONTHS_IN_RUSSIAN_MAP
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -95,6 +99,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         short_link = request.build_absolute_uri(f'/s/{recipe.short_link_code}')
         return Response({"short-link": short_link}, status=status.HTTP_200_OK)
+
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def download_shopping_cart(self, request):
+        user = request.user
+        recipes = Recipe.objects.filter(shopping_cart__user=user)
+
+        if not recipes.exists():
+            return Response({"detail": "Список покупок пуст."}, status=400)
+
+        recipe_names = sorted(recipes.values_list('name', flat=True))
+        date = localdate()
+        date_str = f"{date.day} {MONTHS_IN_RUSSIAN_MAP[date.month]} {date.year} г."
+        recipe_line = f"{'Рецепт' if len(recipe_names) == 1 else 'Рецепты'}: {', '.join(recipe_names)}."
+
+        ingredients = {}
+        for item in IngredientInRecipe.objects.filter(recipe__in=recipes):
+            name = item.ingredient.name.capitalize()
+            key = (name, item.ingredient.measurement_unit)
+            ingredients[key] = ingredients.get(key, 0) + item.amount
+
+        sorted_items = sorted(ingredients.items(), key=lambda x: x[0][0])
+
+        lines = [f"Список покупок от {date_str}", recipe_line, "Продукты:"]
+        for i, ((name, unit), amount) in enumerate(sorted_items, 1):
+            lines.append(f"{i}. {name} — {amount} {unit}.")
+
+        response = HttpResponse('\n'.join(lines), content_type='text/plain; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="shopping-list.txt"'
+        return response
 
 
 class ShortLinkRedirectView(APIView):
