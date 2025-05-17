@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Ingredient, Recipe
-from .serializers import IngredientSerializer, RecipeSerializer
+from .models import Ingredient, Recipe, Favorite, ShoppingCart
+from .serializers import IngredientSerializer, RecipeSerializer, ShortRecipeSerializer
 from django.http import Http404
 from django.shortcuts import redirect
 from rest_framework.response import Response
@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from .filters import IngredientFilter
 from rest_framework.pagination import PageNumberPagination
+from .filters import RecipeFilter
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -32,7 +33,52 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = RecipePagination
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['author']  # is_favorited и shopping_cart заглушки
+    filterset_class = RecipeFilter
+
+    def get_object_or_404_recipe(self, pk):
+        try:
+            return Recipe.objects.get(pk=pk)
+        except Recipe.DoesNotExist:
+            raise Http404("Рецепт не найден.")
+        
+    def add_to(self, model, request, pk):
+        user = request.user
+        recipe = self.get_object_or_404_recipe(pk)
+        if model.objects.filter(user=user, recipe=recipe).exists():
+            return Response(
+                {'errors': 'Рецепт уже добавлен.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        model.objects.create(user=user, recipe=recipe)
+        return Response(ShortRecipeSerializer(recipe, context=self.get_serializer_context()).data, status=status.HTTP_201_CREATED)
+
+    def remove_from(self, model, request, pk):
+        user = request.user
+        recipe = self.get_object_or_404_recipe(pk)
+        obj = model.objects.filter(user=user, recipe=recipe).first()
+        if not obj:
+            return Response(
+                {'errors': 'Рецепт не найден в списке.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def favorite(self, request, pk=None):
+        return self.add_to(Favorite, request, pk)
+
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk=None):
+        return self.remove_from(Favorite, request, pk)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def shopping_cart(self, request, pk=None):
+        return self.add_to(ShoppingCart, request, pk)
+
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, pk=None):
+        return self.remove_from(ShoppingCart, request, pk)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

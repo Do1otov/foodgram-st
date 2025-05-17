@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Ingredient, Recipe, IngredientInRecipe
+from .models import Ingredient, Recipe, IngredientInRecipe, Favorite, ShoppingCart
 from users.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -110,8 +110,24 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
     def get_is_favorited(self, obj):
-        return False  # Заглушка
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return Favorite.objects.filter(user=user, recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        return False  # Заглушка
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
 
+
+
+
+
+class ShortRecipeSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
