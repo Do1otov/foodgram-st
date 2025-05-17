@@ -3,6 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import User
 from .serializers import UserSerializer, UserCreateSerializer
+from .models import Subscription
+from .serializers import UserWithRecipesSerializer
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -69,3 +73,48 @@ class UserViewSet(viewsets.ModelViewSet):
         user.set_password(new_pass)
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def subscribe(self, request, pk=None):
+        user = request.user
+        try:
+            author = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({'detail': 'Страница не найдена.'}, status=404)
+
+        if user == author:
+            return Response({'detail': 'Нельзя подписаться на самого себя.'}, status=400)
+        if Subscription.objects.filter(user=user, author=author).exists():
+            return Response({'detail': 'Вы уже подписаны.'}, status=400)
+
+        Subscription.objects.create(user=user, author=author)
+        serializer = UserWithRecipesSerializer(author, context={'request': request})
+        return Response(serializer.data, status=201)
+
+    @subscribe.mapping.delete
+    def unsubscribe(self, request, pk=None):
+        user = request.user
+        try:
+            author = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({'detail': 'Страница не найдена.'}, status=404)
+
+        subscription = Subscription.objects.filter(user=user, author=author)
+        if not subscription.exists():
+            return Response({'detail': 'Вы не были подписаны.'}, status=400)
+
+        subscription.delete()
+        return Response(status=204)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def subscriptions(self, request):
+        user = request.user
+        queryset = User.objects.filter(subscribers__user=user)
+
+        paginator = PageNumberPagination()
+        paginator.page_size_query_param = 'limit'
+        result_page = paginator.paginate_queryset(queryset, request)
+
+        serializer = UserWithRecipesSerializer(result_page, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
