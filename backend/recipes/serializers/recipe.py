@@ -1,33 +1,9 @@
 from rest_framework import serializers
-from .models import Ingredient, Recipe, IngredientInRecipe, Favorite, ShoppingCart
-from users.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from django.core.exceptions import ValidationError as DjangoValidationError
-
-
-class IngredientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ingredient
-        fields = ['id', 'name', 'measurement_unit']
-
-
-class IngredientInRecipeWriteSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(), source='ingredient')
-    amount = serializers.IntegerField()
-
-    class Meta:
-        model = IngredientInRecipe
-        fields = ('id', 'amount')
-
-
-class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
-
-    class Meta:
-        model = IngredientInRecipe
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+from users.serializers import UserSerializer
+from ..models import Recipe, Ingredient, IngredientInRecipe, Favorite, ShoppingCart
+from .ingredient import IngredientInRecipeReadSerializer
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -120,9 +96,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return False
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
-
-
-
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):

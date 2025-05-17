@@ -1,29 +1,14 @@
-from rest_framework import viewsets, permissions, status
-from rest_framework.permissions import AllowAny
-from django_filters.rest_framework import DjangoFilterBackend
-from .models import Ingredient, Recipe, Favorite, ShoppingCart, IngredientInRecipe
-from .serializers import IngredientSerializer, RecipeSerializer, ShortRecipeSerializer
-from django.http import Http404
-from django.shortcuts import redirect
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.decorators import action
-from .filters import IngredientFilter
-from django.http import HttpResponse
 from rest_framework.pagination import PageNumberPagination
-from .filters import RecipeFilter
-from django.db.models import Sum, F
+from rest_framework import viewsets, status, permissions
+from django_filters.rest_framework import DjangoFilterBackend
+from django.http import Http404, HttpResponse
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from django.utils.timezone import localdate
+from ..models import Recipe, Favorite, ShoppingCart, IngredientInRecipe
+from ..serializers import RecipeSerializer, ShortRecipeSerializer
+from ..filters import RecipeFilter
 from core.constants import MONTHS_IN_RUSSIAN_MAP
-
-
-class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
-    permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = IngredientFilter
-    pagination_class = None
 
 
 class RecipePagination(PageNumberPagination):
@@ -43,7 +28,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         try:
             return Recipe.objects.get(pk=pk)
         except Recipe.DoesNotExist:
-            raise Http404("Рецепт не найден.")
+            raise Http404('Рецепт не найден.')
         
     def add_to(self, model, request, pk):
         user = request.user
@@ -93,13 +78,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe = self.get_object()
         except Recipe.DoesNotExist:
             return Response(
-                {"detail": "Рецепт не найден."},
+                {'detail': 'Рецепт не найден.'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
         short_link = request.build_absolute_uri(f'/s/{recipe.short_link_code}')
-        return Response({"short-link": short_link}, status=status.HTTP_200_OK)
-
+        return Response({'short-link': short_link}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):
@@ -107,12 +91,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipes = Recipe.objects.filter(shopping_cart__user=user)
 
         if not recipes.exists():
-            return Response({"detail": "Список покупок пуст."}, status=400)
+            return Response({'detail': 'Список покупок пуст.'}, status=400)
 
         recipe_names = sorted(recipes.values_list('name', flat=True))
         date = localdate()
-        date_str = f"{date.day} {MONTHS_IN_RUSSIAN_MAP[date.month]} {date.year} г."
-        recipe_line = f"{'Рецепт' if len(recipe_names) == 1 else 'Рецепты'}: {', '.join(recipe_names)}."
+        date_str = f'{date.day} {MONTHS_IN_RUSSIAN_MAP[date.month]} {date.year} г.'
+        recipe_line = f'{'Рецепт' if len(recipe_names) == 1 else 'Рецепты'}: {', '.join(recipe_names)}.'
 
         ingredients = {}
         for item in IngredientInRecipe.objects.filter(recipe__in=recipes):
@@ -122,23 +106,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         sorted_items = sorted(ingredients.items(), key=lambda x: x[0][0])
 
-        lines = [f"Список покупок от {date_str}", recipe_line, "Продукты:"]
+        lines = [f'Список покупок от {date_str}', recipe_line, 'Продукты:']
         for i, ((name, unit), amount) in enumerate(sorted_items, 1):
-            lines.append(f"{i}. {name} — {amount} {unit}.")
+            lines.append(f'{i}. {name} — {amount} {unit}.')
 
         response = HttpResponse('\n'.join(lines), content_type='text/plain; charset=utf-8')
         response['Content-Disposition'] = 'attachment; filename="shopping-list.txt"'
         return response
-
-
-class ShortLinkRedirectView(APIView):
-    authentication_classes = []
-    permission_classes = []
-
-    def get(self, request, short_link_code):
-        try:
-            recipe = Recipe.objects.get(short_link_code=short_link_code)
-        except Recipe.DoesNotExist:
-            raise Http404("Рецепт не найден.")
-
-        return redirect(f'http://localhost/recipes/{recipe.id}')

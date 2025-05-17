@@ -1,36 +1,25 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import User
-from .serializers import UserSerializer, UserCreateSerializer
-from .models import Subscription
-from .serializers import UserWithRecipesSerializer
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from ..permissions import UserViewSetPermission
+from ..models import User, Subscription
+from ..serializers import UserCreateSerializer, UserSerializer, UserWithRecipesSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = [permissions.AllowAny]
-
+    permission_classes = [UserViewSetPermission]
 
     def get_serializer_class(self):
         if self.action == 'create':
             return UserCreateSerializer
         return UserSerializer
 
-
-    def get_permissions(self):
-        if self.action in ['me', 'set_password', 'avatar', 'delete_avatar']:
-            return [permissions.IsAuthenticated()]
-        return super().get_permissions()
-
-
     @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
-
 
     @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
     def avatar(self, request):
@@ -51,7 +40,6 @@ class UserViewSet(viewsets.ModelViewSet):
         elif request.method == 'DELETE':
             user.avatar.delete(save=True)
             return Response(status=status.HTTP_204_NO_CONTENT)
-
 
     @action(detail=False, methods=['post'], url_path='set_password')
     def set_password(self, request):
@@ -74,8 +62,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['post'])
     def subscribe(self, request, pk=None):
         user = request.user
         try:
@@ -107,7 +94,7 @@ class UserViewSet(viewsets.ModelViewSet):
         subscription.delete()
         return Response(status=204)
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get'])
     def subscriptions(self, request):
         user = request.user
         queryset = User.objects.filter(subscribers__user=user)
