@@ -3,7 +3,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import User
 from .serializers import UserSerializer, UserCreateSerializer
-from core.utils import decode_base64_image
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -31,21 +30,22 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
     def avatar(self, request):
+        user = request.user
+
         if request.method == 'PUT':
             avatar_data = request.data.get('avatar')
             if not avatar_data:
                 return Response({'avatar': ['Обязательное поле.']}, status=status.HTTP_400_BAD_REQUEST)
 
-            try:
-                avatar_file = decode_base64_image(avatar_data, 'avatar')
-                request.user.avatar = avatar_file
-                request.user.save()
-                return Response({'avatar': request.user.avatar.url})
-            except ValueError as e:
-                return Response({'avatar': [str(e)]}, status=status.HTTP_400_BAD_REQUEST)
+            serializer = self.get_serializer(user, data={'avatar': avatar_data}, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                avatar_url = serializer.data.get('avatar')
+                return Response({'avatar': avatar_url}, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':
-            request.user.avatar.delete(save=True)
+            user.avatar.delete(save=True)
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 

@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from .models import User
+from drf_extra_fields.fields import Base64ImageField
 
 
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    avatar = serializers.ImageField(read_only=True)
+    avatar = Base64ImageField(max_length=None, use_url=True)
 
     class Meta:
         model = User

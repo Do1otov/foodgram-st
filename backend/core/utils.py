@@ -1,15 +1,6 @@
-import base64
-from django.core.files.base import ContentFile
+import shortuuid
+from core.constants import SHORT_LINK_CODE_MAX_LEN
 
 
-def decode_base64_image(data: str, filename: str = 'filename'):
-    if ';base64,' not in data:
-        raise ValueError('Некорректный формат изображения')
-
-    try:
-        format, imgstr = data.split(';base64,')
-        ext = format.split('/')[-1]
-        file = ContentFile(base64.b64decode(imgstr), name=f'{filename}.{ext}')
-        return file
-    except Exception as e:
-        raise ValueError('Ошибка при декодировании изображения') from e
+def generate_short_link_code(length: int = SHORT_LINK_CODE_MAX_LEN) -> str:
+    return shortuuid.ShortUUID().random(length=length)

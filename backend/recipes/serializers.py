@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Ingredient, Recipe, IngredientInRecipe
 from users.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -48,7 +49,6 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
     def to_representation(self, instance):
-        """Переопределяем вывод ингредиентов для чтения."""
         rep = super().to_representation(instance)
         rep['ingredients'] = IngredientInRecipeReadSerializer(
             instance.ingredientinrecipe_set.all(), many=True
@@ -73,7 +73,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             seen_ids.add(ingredient_id)
             if not Ingredient.objects.filter(id=ingredient_id).exists():
                 raise serializers.ValidationError(f'Ингредиент с id={ingredient_id} не найден.')
-            if not isinstance(amount, int) or not (1 <= amount <= 32767):
+            if not (1 <= int(amount) <= 32767):
                 raise serializers.ValidationError('Количество должно быть от 1 до 32767.')
         return value
 
@@ -88,7 +88,11 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(**validated_data)
+        try:
+            recipe = Recipe.objects.create(**validated_data)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(e.message_dict if hasattr(e, 'message_dict') else str(e))
+
         self.add_ingredients(recipe, ingredients_data)
         return recipe
 

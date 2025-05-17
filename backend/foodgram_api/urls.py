@@ -2,12 +2,14 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from recipes.views import ShortLinkRedirectView
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('users.urls')),
     path('api/', include('recipes.urls')),
+    path('s/<str:short_link_code>/', ShortLinkRedirectView.as_view(), name='short_link_redirect'),
 
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.authtoken')),
