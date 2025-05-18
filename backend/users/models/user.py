@@ -3,6 +3,7 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from core.constants import USER_EMAIL_MAX_LEN, USER_USERNAME_MAX_LEN, USER_FIRST_NAME_MAX_LEN, USER_LAST_NAME_MAX_LEN, CHAR_FIELD_MIN_LEN
 
 
 class User(AbstractUser):
@@ -10,48 +11,48 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     email = models.EmailField(
-        verbose_name='Адрес электронной почты',
+        max_length=USER_EMAIL_MAX_LEN,
         unique=True,
-        max_length=254,
+        verbose_name='Адрес электронной почты',
     )
     username = models.CharField(
-        verbose_name='Никнейм',
+        max_length=USER_USERNAME_MAX_LEN,
         unique=True,
-        max_length=150,
-        validators=[MinLengthValidator(1, _('Никнейм не может быть пустым.'))],
+        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _('Никнейм не может быть пустым.'))],
+        verbose_name='Никнейм',
     )
     first_name = models.CharField(
+        max_length=USER_FIRST_NAME_MAX_LEN,
+        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _('Имя не может быть пустым.'))],
         verbose_name='Имя',
-        max_length=150,
-        validators=[MinLengthValidator(1, _('Имя не может быть пустым.'))],
     )
     last_name = models.CharField(
+        max_length=USER_LAST_NAME_MAX_LEN,
+        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _('Фамилия не может быть пустой.'))],
         verbose_name='Фамилия',
-        max_length=150,
-        validators=[MinLengthValidator(1, _('Фамилия не может быть пустой.'))],
     )
     avatar = models.ImageField(
-        verbose_name='Аватар',
-        upload_to='users/',
         blank=True,
         null=True,
+        upload_to='users/',
+        verbose_name='Аватар',
     )
     is_staff = models.BooleanField(
-        verbose_name='Является админом',
         default=False,
+        verbose_name='Является админом',
     )
     is_active = models.BooleanField(
-        verbose_name='Активная учётная запись',
         default=True,
+        verbose_name='Активная учётная запись',
     )
     date_joined = models.DateTimeField(
-        verbose_name='Дата регистрации',
         default=timezone.now,
+        verbose_name='Дата регистрации',
     )
     last_login = models.DateTimeField(
-        verbose_name='Последний вход',
         blank=True,
         null=True,
+        verbose_name='Последний вход',
     )
 
     class Meta:

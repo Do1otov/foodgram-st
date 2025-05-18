@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from rest_framework.views import APIView
 
 from ..models import Recipe
+from core.constants import RECIPE_SHORT_LINK_REDIRECT_URL
 
 
 class ShortLinkRedirectView(APIView):
@@ -15,4 +16,4 @@ class ShortLinkRedirectView(APIView):
         except Recipe.DoesNotExist:
             raise Http404('Рецепт не найден.')
 
-        return redirect(f'http://localhost/recipes/{recipe.id}')
+        return redirect(RECIPE_SHORT_LINK_REDIRECT_URL.format(id=recipe.id))

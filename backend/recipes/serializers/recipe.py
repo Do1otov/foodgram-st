@@ -7,6 +7,7 @@ from users.serializers import UserSerializer
 from ..models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                       ShoppingCart)
 from .ingredient import IngredientInRecipeSerializer
+from core.constants import INGREDIENTS_IN_RECIPE_MAX_NUM, POS_INT_FIELD_MIN, POS_INT_FIELD_MAX
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -38,8 +39,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         if not isinstance(value, list) or not value:
             raise serializers.ValidationError('Нужен хотя бы один ингредиент.')
 
-        if len(value) > 100:
-            raise serializers.ValidationError('Максимум 100 ингредиентов.')
+        if len(value) > INGREDIENTS_IN_RECIPE_MAX_NUM:
+            raise serializers.ValidationError(f'Максимум {INGREDIENTS_IN_RECIPE_MAX_NUM} ингредиентов.')
 
         seen_ids = set()
         for item in value:
@@ -52,8 +53,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             seen_ids.add(ingredient_id)
             if not Ingredient.objects.filter(id=ingredient_id).exists():
                 raise serializers.ValidationError(f'Ингредиент с id={ingredient_id} не найден.')
-            if not (1 <= int(amount) <= 32767):
-                raise serializers.ValidationError('Количество должно быть от 1 до 32767.')
+            if not (POS_INT_FIELD_MIN <= int(amount) <= POS_INT_FIELD_MAX):
+                raise serializers.ValidationError(f'Количество должно быть от {POS_INT_FIELD_MIN} до {POS_INT_FIELD_MAX}.')
         return value
 
     def add_ingredients(self, recipe, ingredients_data):

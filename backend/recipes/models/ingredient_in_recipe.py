@@ -3,6 +3,7 @@ from django.db import models
 
 from .ingredient import Ingredient
 from .recipe import Recipe
+from core.constants import POS_INT_FIELD_MIN, POS_INT_FIELD_MAX
 
 
 class IngredientInRecipe(models.Model):
@@ -14,10 +15,10 @@ class IngredientInRecipe(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
     )
-    amount = models.PositiveIntegerField(
+    amount = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(1),
-            MaxValueValidator(32767)
+            MinValueValidator(POS_INT_FIELD_MIN),
+            MaxValueValidator(POS_INT_FIELD_MAX)
         ],
         verbose_name='Количество',
     )

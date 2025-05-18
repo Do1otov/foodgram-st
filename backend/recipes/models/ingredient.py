@@ -1,19 +1,20 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
+from core.constants import CHAR_FIELD_MIN_LEN, INGREDIENT_NAME_MAX_LEN, INGREDIENT_MEASUREMENT_UNIT_MAX_LEN
 
 
 class Ingredient(models.Model):
     name = models.CharField(
-        max_length=128,
+        max_length=INGREDIENT_NAME_MAX_LEN,
         validators=[
-            MinLengthValidator(1)
+            MinLengthValidator(CHAR_FIELD_MIN_LEN)
         ],
         verbose_name='Название'
     )
     measurement_unit = models.CharField(
-        max_length=64,
+        max_length=INGREDIENT_MEASUREMENT_UNIT_MAX_LEN,
         validators=[
-            MinLengthValidator(1)
+            MinLengthValidator(CHAR_FIELD_MIN_LEN)
         ],
         verbose_name='Единица измерения'
     )

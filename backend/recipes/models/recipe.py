@@ -5,10 +5,11 @@ from django.core.validators import (MaxValueValidator, MinLengthValidator,
 from django.db import models
 
 from core.constants import (SHORT_LINK_CODE_MAX_ATTEMPTS_GENERATE,
-                            SHORT_LINK_CODE_MAX_LEN)
+                            RECIPE_SHORT_LINK_CODE_MAX_LEN)
 from core.utils import generate_short_link_code
 
 from .ingredient import Ingredient
+from core.constants import RECIPE_NAME_MAX_LEN, CHAR_FIELD_MIN_LEN, POS_INT_FIELD_MIN, POS_INT_FIELD_MAX
 
 User = get_user_model()
 
@@ -21,9 +22,9 @@ class Recipe(models.Model):
         verbose_name='Автор',
     )
     name = models.CharField(
-        max_length=256,
+        max_length=RECIPE_NAME_MAX_LEN,
         validators=[
-            MinLengthValidator(1)
+            MinLengthValidator(CHAR_FIELD_MIN_LEN)
         ],
         verbose_name='Название',
     )
@@ -33,14 +34,14 @@ class Recipe(models.Model):
     )
     text = models.TextField(
         validators=[
-            MinLengthValidator(1)
+            MinLengthValidator(CHAR_FIELD_MIN_LEN)
         ],
         verbose_name='Описание',
     )
     cooking_time = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(1),
-            MaxValueValidator(32767)
+            MinValueValidator(POS_INT_FIELD_MIN),
+            MaxValueValidator(POS_INT_FIELD_MAX)
         ],
         verbose_name='Время приготовления (мин)',
     )
@@ -50,7 +51,7 @@ class Recipe(models.Model):
         verbose_name='Ингредиенты',
     )
     short_link_code = models.CharField(
-        max_length=SHORT_LINK_CODE_MAX_LEN,
+        max_length=RECIPE_SHORT_LINK_CODE_MAX_LEN,
         unique=True,
         editable=False,
         verbose_name='Код короткой ссылки',

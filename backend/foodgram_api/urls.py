@@ -10,9 +10,6 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('api/', include('recipes.urls')),
     path('s/<str:short_link_code>/', ShortLinkRedirectView.as_view(), name='short_link_redirect'),
-
-    path('api/auth/', include('djoser.urls')),
-    path('api/auth/', include('djoser.urls.authtoken')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
