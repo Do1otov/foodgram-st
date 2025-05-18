@@ -3,11 +3,11 @@ from django.utils.timezone import localdate
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from core.constants import MONTHS_IN_RUSSIAN_MAP
 from core.pagination import LimitPageNumberPagination
+from core.permissions import RecipePermission
 
 from ..filters import RecipeFilter
 from ..models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
@@ -17,7 +17,7 @@ from ..serializers import RecipeSerializer, ShortRecipeSerializer
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [RecipePermission]
     pagination_class = LimitPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter

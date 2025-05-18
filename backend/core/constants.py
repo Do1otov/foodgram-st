@@ -7,3 +7,7 @@ MONTHS_IN_RUSSIAN_MAP = {
     5: 'мая', 6: 'июня', 7: 'июля', 8: 'августа',
     9: 'сентября', 10: 'октября', 11: 'ноября', 12: 'декабря'
 }
+
+PAGINATION_DEFAULT_PAGE_SIZE = 6
+PAGINATION_MAX_PAGE_SIZE = 100
+

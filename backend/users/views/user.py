@@ -3,16 +3,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from core.pagination import LimitPageNumberPagination
+from core.permissions import UserPermission
 
 from ..models import Subscription, User
-from ..permissions import UserViewSetPermission
 from ..serializers import (UserCreateSerializer, UserSerializer,
                            UserWithRecipesSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = [UserViewSetPermission]
+    permission_classes = [UserPermission]
     pagination_class = LimitPageNumberPagination
 
     def get_serializer_class(self):

@@ -1,1 +1,0 @@
-from .user_view_set import UserViewSetPermission

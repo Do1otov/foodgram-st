@@ -18,39 +18,42 @@ class Recipe(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='recipes',
-        verbose_name='Автор'
+        verbose_name='Автор',
     )
     name = models.CharField(
         max_length=256,
         validators=[
             MinLengthValidator(1)
         ],
-        verbose_name='Название'
+        verbose_name='Название',
     )
     image = models.ImageField(
         upload_to='recipes/images/',
-        verbose_name='Изображение'
+        verbose_name='Изображение',
     )
     text = models.TextField(
         validators=[
             MinLengthValidator(1)
         ],
-        verbose_name='Описание'
+        verbose_name='Описание',
     )
     cooking_time = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(32767)],
-        verbose_name='Время приготовления (мин)'
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(32767)
+        ],
+        verbose_name='Время приготовления (мин)',
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientInRecipe',
-        verbose_name='Ингредиенты'
+        verbose_name='Ингредиенты',
     )
     short_link_code = models.CharField(
         max_length=SHORT_LINK_CODE_MAX_LEN,
         unique=True,
         editable=False,
-        verbose_name='Код короткой ссылки'
+        verbose_name='Код короткой ссылки',
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

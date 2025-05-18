@@ -12,29 +12,29 @@ class User(AbstractUser):
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
         unique=True,
-        max_length=254
+        max_length=254,
     )
     username = models.CharField(
         verbose_name='Никнейм',
         unique=True,
         max_length=150,
-        validators=[MinLengthValidator(1, _('Никнейм не может быть пустым.'))]
+        validators=[MinLengthValidator(1, _('Никнейм не может быть пустым.'))],
     )
     first_name = models.CharField(
         verbose_name='Имя',
         max_length=150,
-        validators=[MinLengthValidator(1, _('Имя не может быть пустым.'))]
+        validators=[MinLengthValidator(1, _('Имя не может быть пустым.'))],
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
         max_length=150,
-        validators=[MinLengthValidator(1, _('Фамилия не может быть пустой.'))]
+        validators=[MinLengthValidator(1, _('Фамилия не может быть пустой.'))],
     )
     avatar = models.ImageField(
         verbose_name='Аватар',
         upload_to='users/',
         blank=True,
-        null=True
+        null=True,
     )
     is_staff = models.BooleanField(
         verbose_name='Является админом',
@@ -46,12 +46,12 @@ class User(AbstractUser):
     )
     date_joined = models.DateTimeField(
         verbose_name='Дата регистрации',
-        default=timezone.now
+        default=timezone.now,
     )
     last_login = models.DateTimeField(
         verbose_name='Последний вход',
         blank=True,
-        null=True
+        null=True,
     )
 
     class Meta:

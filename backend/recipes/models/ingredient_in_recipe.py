@@ -6,11 +6,20 @@ from .recipe import Recipe
 
 
 class IngredientInRecipe(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+    )
     amount = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(32767)],
-        verbose_name='Количество'
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(32767)
+        ],
+        verbose_name='Количество',
     )
 
     class Meta:
@@ -18,8 +27,12 @@ class IngredientInRecipe(models.Model):
         verbose_name_plural = 'Ингредиенты в рецепте'
         constraints = [
             models.UniqueConstraint(
-                fields=['recipe', 'ingredient'],
-                name='unique_ingredient_per_recipe')
+                fields=[
+                    'recipe',
+                    'ingredient'
+                ],
+                name='unique_ingredient_per_recipe'
+            )
         ]
 
     def __str__(self):

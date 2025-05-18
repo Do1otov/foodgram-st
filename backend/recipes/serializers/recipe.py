@@ -6,7 +6,7 @@ from users.serializers import UserSerializer
 
 from ..models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                       ShoppingCart)
-from .ingredient import IngredientInRecipeReadSerializer
+from .ingredient import IngredientInRecipeSerializer
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -29,7 +29,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        rep['ingredients'] = IngredientInRecipeReadSerializer(
+        rep['ingredients'] = IngredientInRecipeSerializer(
             instance.ingredientinrecipe_set.all(), many=True
         ).data
         return rep
