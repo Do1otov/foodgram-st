@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class UserPermission(BasePermission):
@@ -27,8 +27,11 @@ class UserPermission(BasePermission):
 
         if user.is_staff:
             return True
+        
+        if action == 'retrieve':
+            return True
 
-        if action in ['retrieve', 'update', 'partial_update', 'destroy']:
+        if action in ['update', 'partial_update', 'destroy']:
             return obj == user
 
         return False

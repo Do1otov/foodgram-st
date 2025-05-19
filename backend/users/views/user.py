@@ -2,6 +2,10 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from core.constants import (ALREADY_SUBSCRIBED_ERROR,
+                            INCORRECT_CURRENT_PASSWORD_ERROR,
+                            NOT_SUBSCRIBED_ERROR, PAGE_NOT_FOUND_ERROR,
+                            REQUIRED_FIELD_ERROR, SUBSCRIBE_TO_YOURSELF_ERROR)
 from core.pagination import LimitPageNumberPagination
 from core.permissions import UserPermission
 
@@ -23,7 +27,9 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):
         serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
+        return Response(
+            serializer.data
+        )
 
     @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
     def avatar(self, request):
@@ -32,18 +38,29 @@ class UserViewSet(viewsets.ModelViewSet):
         if request.method == 'PUT':
             avatar_data = request.data.get('avatar')
             if not avatar_data:
-                return Response({'avatar': ['Обязательное поле.']}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'avatar': [REQUIRED_FIELD_ERROR]},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             serializer = self.get_serializer(user, data={'avatar': avatar_data}, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 avatar_url = serializer.data.get('avatar')
-                return Response({'avatar': avatar_url}, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'avatar': avatar_url},
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         elif request.method == 'DELETE':
             user.avatar.delete(save=True)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                status=status.HTTP_204_NO_CONTENT
+            )
 
     @action(detail=False, methods=['post'], url_path='set_password')
     def set_password(self, request):
@@ -53,18 +70,26 @@ class UserViewSet(viewsets.ModelViewSet):
 
         errors = {}
         if not current_pass:
-            errors['current_password'] = ['Обязательное поле.']
+            errors['current_password'] = [REQUIRED_FIELD_ERROR]
         if not new_pass:
-            errors['new_password'] = ['Обязательное поле.']
+            errors['new_password'] = [REQUIRED_FIELD_ERROR]
         if errors:
-            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not user.check_password(current_pass):
-            return Response({'current_password': ['Неверный текущий пароль.']}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'current_password': [INCORRECT_CURRENT_PASSWORD_ERROR]},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         user.set_password(new_pass)
         user.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(detail=True, methods=['post'])
     def subscribe(self, request, pk=None):
@@ -72,16 +97,28 @@ class UserViewSet(viewsets.ModelViewSet):
         try:
             author = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return Response({'detail': 'Страница не найдена.'}, status=404)
+            return Response(
+                {'detail': PAGE_NOT_FOUND_ERROR},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         if user == author:
-            return Response({'detail': 'Нельзя подписаться на самого себя.'}, status=400)
+            return Response(
+                {'detail': SUBSCRIBE_TO_YOURSELF_ERROR},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if Subscription.objects.filter(user=user, author=author).exists():
-            return Response({'detail': 'Вы уже подписаны.'}, status=400)
+            return Response(
+                {'detail': ALREADY_SUBSCRIBED_ERROR},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         Subscription.objects.create(user=user, author=author)
         serializer = UserWithRecipesSerializer(author, context={'request': request})
-        return Response(serializer.data, status=201)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
 
     @subscribe.mapping.delete
     def unsubscribe(self, request, pk=None):
@@ -89,14 +126,22 @@ class UserViewSet(viewsets.ModelViewSet):
         try:
             author = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return Response({'detail': 'Страница не найдена.'}, status=404)
+            return Response(
+                {'detail': PAGE_NOT_FOUND_ERROR},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         subscription = Subscription.objects.filter(user=user, author=author)
         if not subscription.exists():
-            return Response({'detail': 'Вы не были подписаны.'}, status=400)
+            return Response(
+                {'detail': NOT_SUBSCRIBED_ERROR},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         subscription.delete()
-        return Response(status=204)
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):

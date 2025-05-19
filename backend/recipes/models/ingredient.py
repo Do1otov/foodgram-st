@@ -1,6 +1,9 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
-from core.constants import CHAR_FIELD_MIN_LEN, INGREDIENT_NAME_MAX_LEN, INGREDIENT_MEASUREMENT_UNIT_MAX_LEN
+
+from core.constants import (CHAR_FIELD_MIN_LEN,
+                            INGREDIENT_MEASUREMENT_UNIT_MAX_LEN,
+                            INGREDIENT_NAME_MAX_LEN)
 
 
 class Ingredient(models.Model):

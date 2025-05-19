@@ -3,7 +3,11 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from core.constants import USER_EMAIL_MAX_LEN, USER_USERNAME_MAX_LEN, USER_FIRST_NAME_MAX_LEN, USER_LAST_NAME_MAX_LEN, CHAR_FIELD_MIN_LEN
+
+from core.constants import (CHAR_FIELD_MIN_LEN, USER_EMAIL_MAX_LEN,
+                            USER_FIRST_NAME_ERROR, USER_FIRST_NAME_MAX_LEN,
+                            USER_LAST_NAME_ERROR, USER_LAST_NAME_MAX_LEN,
+                            USER_USERNAME_ERROR, USER_USERNAME_MAX_LEN)
 
 
 class User(AbstractUser):
@@ -18,17 +22,17 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=USER_USERNAME_MAX_LEN,
         unique=True,
-        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _('Никнейм не может быть пустым.'))],
+        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _(USER_USERNAME_ERROR))],
         verbose_name='Никнейм',
     )
     first_name = models.CharField(
         max_length=USER_FIRST_NAME_MAX_LEN,
-        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _('Имя не может быть пустым.'))],
+        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _(USER_FIRST_NAME_ERROR))],
         verbose_name='Имя',
     )
     last_name = models.CharField(
         max_length=USER_LAST_NAME_MAX_LEN,
-        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _('Фамилия не может быть пустой.'))],
+        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _(USER_LAST_NAME_ERROR))],
         verbose_name='Фамилия',
     )
     avatar = models.ImageField(

@@ -3,9 +3,12 @@ from django.utils.timezone import localdate
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
-from core.constants import MONTHS_IN_RUSSIAN_MAP
+from core.constants import (MONTHS_IN_RUSSIAN_MAP, RECIPE_ALREADY_EXISTS_ERROR,
+                            RECIPE_NOT_FOUND_ERROR, SHOPPING_CART_EMPTY_ERROR,
+                            SHORT_LINK_PREFIX)
 from core.pagination import LimitPageNumberPagination
 from core.permissions import RecipePermission
 
@@ -26,18 +29,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
         try:
             return Recipe.objects.get(pk=pk)
         except Recipe.DoesNotExist:
-            raise Http404('Рецепт не найден.')
+            raise NotFound(RECIPE_NOT_FOUND_ERROR)
         
     def add_to(self, model, request, pk):
         user = request.user
         recipe = self.get_object_or_404_recipe(pk)
         if model.objects.filter(user=user, recipe=recipe).exists():
             return Response(
-                {'errors': 'Рецепт уже добавлен.'},
+                {'errors': RECIPE_ALREADY_EXISTS_ERROR},
                 status=status.HTTP_400_BAD_REQUEST
             )
         model.objects.create(user=user, recipe=recipe)
-        return Response(ShortRecipeSerializer(recipe, context=self.get_serializer_context()).data, status=status.HTTP_201_CREATED)
+        return Response(
+            ShortRecipeSerializer(recipe, context=self.get_serializer_context()).data,
+            status=status.HTTP_201_CREATED
+        )
 
     def remove_from(self, model, request, pk):
         user = request.user
@@ -45,11 +51,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         obj = model.objects.filter(user=user, recipe=recipe).first()
         if not obj:
             return Response(
-                {'errors': 'Рецепт не найден в списке.'},
+                {'errors': RECIPE_NOT_FOUND_ERROR},
                 status=status.HTTP_400_BAD_REQUEST
             )
         obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def favorite(self, request, pk=None):
@@ -72,16 +80,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='get-link')
     def get_short_link(self, request, pk=None):
-        try:
-            recipe = self.get_object()
-        except Recipe.DoesNotExist:
-            return Response(
-                {'detail': 'Рецепт не найден.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        recipe = self.get_object()
 
-        short_link = request.build_absolute_uri(f'/s/{recipe.short_link_code}')
-        return Response({'short-link': short_link}, status=status.HTTP_200_OK)
+        short_link = request.build_absolute_uri(SHORT_LINK_PREFIX.format(short_link_code=recipe.short_link_code))
+        return Response(
+            {'short-link': short_link},
+            status=status.HTTP_200_OK
+        )
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):
@@ -89,7 +94,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipes = Recipe.objects.filter(shopping_cart__user=user)
 
         if not recipes.exists():
-            return Response({'detail': 'Список покупок пуст.'}, status=400)
+            return Response(
+                {'detail': SHOPPING_CART_EMPTY_ERROR},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         recipe_names = sorted(recipes.values_list('name', flat=True))
         date = localdate()

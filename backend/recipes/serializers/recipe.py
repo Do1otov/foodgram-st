@@ -2,19 +2,36 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
+from core.constants import (INGREDIENT_IN_RECIPE_NOT_FOUND,
+                            INGREDIENTS_IN_RECIPE_MAX_NUM,
+                            INGREDIENTS_IN_RECIPE_NOT_MAP_ERROR,
+                            MAX_NUM_INGREDIENTS_IN_RECIPE_ERROR,
+                            MIN_MAX_INGREDIENTS_IN_RECIPE_ERROR,
+                            POS_INT_FIELD_MAX, POS_INT_FIELD_MIN,
+                            REPEATING_INGREDIENTS_IN_RECIPE_ERROR,
+                            REQUIRED_FIELD_ERROR,
+                            ZERO_INGREDIENTS_IN_RECIPE_ERROR)
 from users.serializers import UserSerializer
 
 from ..models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                       ShoppingCart)
 from .ingredient import IngredientInRecipeSerializer
-from core.constants import INGREDIENTS_IN_RECIPE_MAX_NUM, POS_INT_FIELD_MIN, POS_INT_FIELD_MAX
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    image = Base64ImageField(max_length=None, use_url=True)
-    author = UserSerializer(read_only=True)
+    image = Base64ImageField(
+        max_length=None,
+        use_url=True,
+        required=True,
+        allow_null=False,
+        allow_empty_file=False
+    )
+    author = UserSerializer(
+        read_only=True
+    )
     ingredients = serializers.ListField(
-        child=serializers.DictField(), write_only=True
+        child=serializers.DictField(),
+        write_only=True
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -37,24 +54,29 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, value):
         if not isinstance(value, list) or not value:
-            raise serializers.ValidationError('Нужен хотя бы один ингредиент.')
+            raise serializers.ValidationError(ZERO_INGREDIENTS_IN_RECIPE_ERROR)
 
         if len(value) > INGREDIENTS_IN_RECIPE_MAX_NUM:
-            raise serializers.ValidationError(f'Максимум {INGREDIENTS_IN_RECIPE_MAX_NUM} ингредиентов.')
+            raise serializers.ValidationError(MAX_NUM_INGREDIENTS_IN_RECIPE_ERROR)
 
         seen_ids = set()
         for item in value:
             if not isinstance(item, dict):
-                raise serializers.ValidationError('Ингредиенты должны быть словарями.')
+                raise serializers.ValidationError(INGREDIENTS_IN_RECIPE_NOT_MAP_ERROR)
             ingredient_id = item.get('id')
             amount = item.get('amount')
             if ingredient_id in seen_ids:
-                raise serializers.ValidationError('Ингредиенты не должны повторяться.')
+                raise serializers.ValidationError(REPEATING_INGREDIENTS_IN_RECIPE_ERROR)
             seen_ids.add(ingredient_id)
             if not Ingredient.objects.filter(id=ingredient_id).exists():
-                raise serializers.ValidationError(f'Ингредиент с id={ingredient_id} не найден.')
+                raise serializers.ValidationError(INGREDIENT_IN_RECIPE_NOT_FOUND.format(id=ingredient_id))
             if not (POS_INT_FIELD_MIN <= int(amount) <= POS_INT_FIELD_MAX):
-                raise serializers.ValidationError(f'Количество должно быть от {POS_INT_FIELD_MIN} до {POS_INT_FIELD_MAX}.')
+                raise serializers.ValidationError(MIN_MAX_INGREDIENTS_IN_RECIPE_ERROR)
+        return value
+
+    def validate_image(self, value):
+        if not value:
+            raise serializers.ValidationError({ 'image': REQUIRED_FIELD_ERROR })
         return value
 
     def add_ingredients(self, recipe, ingredients_data):
@@ -77,7 +99,12 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop('ingredients', None)
+        if 'ingredients' not in validated_data:
+            raise serializers.ValidationError({
+                'ingredients': REQUIRED_FIELD_ERROR
+            })
+
+        ingredients_data = validated_data.pop('ingredients')
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

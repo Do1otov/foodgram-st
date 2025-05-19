@@ -4,12 +4,14 @@ from django.core.validators import (MaxValueValidator, MinLengthValidator,
                                     MinValueValidator)
 from django.db import models
 
-from core.constants import (SHORT_LINK_CODE_MAX_ATTEMPTS_GENERATE,
-                            RECIPE_SHORT_LINK_CODE_MAX_LEN)
+from core.constants import (CHAR_FIELD_MIN_LEN, GENERATE_SHORT_LINK_ERROR,
+                            POS_INT_FIELD_MAX, POS_INT_FIELD_MIN,
+                            RECIPE_NAME_MAX_LEN,
+                            RECIPE_SHORT_LINK_CODE_MAX_LEN,
+                            SHORT_LINK_CODE_MAX_ATTEMPTS_GENERATE)
 from core.utils import generate_short_link_code
 
 from .ingredient import Ingredient
-from core.constants import RECIPE_NAME_MAX_LEN, CHAR_FIELD_MIN_LEN, POS_INT_FIELD_MIN, POS_INT_FIELD_MAX
 
 User = get_user_model()
 
@@ -74,7 +76,7 @@ class Recipe(models.Model):
                     self.short_link_code = code
                     break
             else:
-                raise ValidationError('Произошла ошибка при генерации короткой ссылки. Пожалуйста, попробуйте позже.')
+                raise ValidationError(GENERATE_SHORT_LINK_ERROR)
         super().save(*args, **kwargs)
 
     def __str__(self):
