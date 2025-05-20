@@ -14,7 +14,7 @@ services:
     volumes:
       - ../backend:/app
       - media_data:/app/media/
-      - static_data:/app/static/
+      - backend_static_data:/app/backend_static/
     env_file:
     - ../backend/.env
     environment:
@@ -49,6 +49,7 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_data:/static/
       - media_data:/media/
+      - backend_static_data:/backend_static/
     depends_on:
       - backend
 
@@ -56,3 +57,4 @@ volumes:
   pg_data:
   static_data:
   media_data:
+  backend_static_data:
