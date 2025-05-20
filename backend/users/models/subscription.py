@@ -20,7 +20,7 @@ class Subscription(models.Model):
     class Meta:
         unique_together = ('user', 'author')
         verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки',
+        verbose_name_plural = 'Подписки'
 
     def __str__(self):
         return f'{self.user} подписан на {self.author}'

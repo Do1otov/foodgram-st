@@ -9,7 +9,11 @@ class Command(BaseCommand):
     help = 'Загружает ингредиенты из JSON-файла в базу данных'
 
     def add_arguments(self, parser):
-        parser.add_argument('filepath', type=str, help='Путь к JSON-файлу с ингредиентами')
+        parser.add_argument(
+            'filepath',
+            type=str,
+            help='Путь к JSON-файлу с ингредиентами'
+        )
 
     def handle(self, *args, **kwargs):
         filepath = kwargs['filepath']
@@ -26,4 +30,6 @@ class Command(BaseCommand):
             if created:
                 created_count += 1
 
-        self.stdout.write(self.style.SUCCESS(f'Загружено {created_count} новых ингредиентов.'))
+        self.stdout.write(self.style.SUCCESS(
+            f'Загружено {created_count} новых ингредиентов.'
+        ))

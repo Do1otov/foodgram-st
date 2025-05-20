@@ -39,11 +39,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'ingredients', 
+            'id', 'author', 'ingredients',
             'is_favorited', 'is_in_shopping_cart',
             'name', 'image', 'text', 'cooking_time'
         )
-
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -54,29 +53,43 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, value):
         if not isinstance(value, list) or not value:
-            raise serializers.ValidationError(ZERO_INGREDIENTS_IN_RECIPE_ERROR)
+            raise serializers.ValidationError(
+                ZERO_INGREDIENTS_IN_RECIPE_ERROR
+            )
 
         if len(value) > INGREDIENTS_IN_RECIPE_MAX_NUM:
-            raise serializers.ValidationError(MAX_NUM_INGREDIENTS_IN_RECIPE_ERROR)
+            raise serializers.ValidationError(
+                MAX_NUM_INGREDIENTS_IN_RECIPE_ERROR
+            )
 
         seen_ids = set()
         for item in value:
             if not isinstance(item, dict):
-                raise serializers.ValidationError(INGREDIENTS_IN_RECIPE_NOT_MAP_ERROR)
+                raise serializers.ValidationError(
+                    INGREDIENTS_IN_RECIPE_NOT_MAP_ERROR
+                )
             ingredient_id = item.get('id')
             amount = item.get('amount')
             if ingredient_id in seen_ids:
-                raise serializers.ValidationError(REPEATING_INGREDIENTS_IN_RECIPE_ERROR)
+                raise serializers.ValidationError(
+                    REPEATING_INGREDIENTS_IN_RECIPE_ERROR
+                )
             seen_ids.add(ingredient_id)
             if not Ingredient.objects.filter(id=ingredient_id).exists():
-                raise serializers.ValidationError(INGREDIENT_IN_RECIPE_NOT_FOUND.format(id=ingredient_id))
+                raise serializers.ValidationError(
+                    INGREDIENT_IN_RECIPE_NOT_FOUND.format(id=ingredient_id)
+                )
             if not (POS_INT_FIELD_MIN <= int(amount) <= POS_INT_FIELD_MAX):
-                raise serializers.ValidationError(MIN_MAX_INGREDIENTS_IN_RECIPE_ERROR)
+                raise serializers.ValidationError(
+                    MIN_MAX_INGREDIENTS_IN_RECIPE_ERROR
+                )
         return value
 
     def validate_image(self, value):
         if not value:
-            raise serializers.ValidationError({ 'image': REQUIRED_FIELD_ERROR })
+            raise serializers.ValidationError(
+                {'image': REQUIRED_FIELD_ERROR}
+            )
         return value
 
     def add_ingredients(self, recipe, ingredients_data):
@@ -93,7 +106,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         try:
             recipe = Recipe.objects.create(**validated_data)
         except DjangoValidationError as e:
-            raise serializers.ValidationError(e.message_dict if hasattr(e, 'message_dict') else str(e))
+            raise serializers.ValidationError(
+                e.message_dict if hasattr(e, 'message_dict') else str(e)
+            )
 
         self.add_ingredients(recipe, ingredients_data)
         return recipe

@@ -43,7 +43,11 @@ class UserViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            serializer = self.get_serializer(user, data={'avatar': avatar_data}, partial=True)
+            serializer = self.get_serializer(
+                user,
+                data={'avatar': avatar_data},
+                partial=True
+            )
             if serializer.is_valid():
                 serializer.save()
                 avatar_url = serializer.data.get('avatar')
@@ -114,7 +118,10 @@ class UserViewSet(viewsets.ModelViewSet):
             )
 
         Subscription.objects.create(user=user, author=author)
-        serializer = UserWithRecipesSerializer(author, context={'request': request})
+        serializer = UserWithRecipesSerializer(
+            author,
+            context={'request': request}
+        )
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED
@@ -151,5 +158,9 @@ class UserViewSet(viewsets.ModelViewSet):
         paginator = LimitPageNumberPagination()
         result_page = paginator.paginate_queryset(queryset, request)
 
-        serializer = UserWithRecipesSerializer(result_page, many=True, context={'request': request})
+        serializer = UserWithRecipesSerializer(
+            result_page,
+            many=True,
+            context={'request': request}
+        )
         return paginator.get_paginated_response(serializer.data)

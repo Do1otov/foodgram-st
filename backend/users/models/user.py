@@ -22,17 +22,26 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=USER_USERNAME_MAX_LEN,
         unique=True,
-        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _(USER_USERNAME_ERROR))],
+        validators=[MinLengthValidator(
+            CHAR_FIELD_MIN_LEN,
+            _(USER_USERNAME_ERROR)
+        )],
         verbose_name='Никнейм',
     )
     first_name = models.CharField(
         max_length=USER_FIRST_NAME_MAX_LEN,
-        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _(USER_FIRST_NAME_ERROR))],
+        validators=[MinLengthValidator(
+            CHAR_FIELD_MIN_LEN,
+            _(USER_FIRST_NAME_ERROR)
+        )],
         verbose_name='Имя',
     )
     last_name = models.CharField(
         max_length=USER_LAST_NAME_MAX_LEN,
-        validators=[MinLengthValidator(CHAR_FIELD_MIN_LEN, _(USER_LAST_NAME_ERROR))],
+        validators=[MinLengthValidator(
+            CHAR_FIELD_MIN_LEN,
+            _(USER_LAST_NAME_ERROR)
+        )],
         verbose_name='Фамилия',
     )
     avatar = models.ImageField(

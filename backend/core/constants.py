@@ -49,15 +49,23 @@ ALREADY_SUBSCRIBED_ERROR = 'Вы уже подписаны.'
 NOT_SUBSCRIBED_ERROR = 'Вы не были подписаны.'
 
 # Локализация ошибок: модель Recipe
-GENERATE_SHORT_LINK_ERROR = 'Произошла ошибка при генерации короткой ссылки. Пожалуйста, попробуйте позже.'
+GENERATE_SHORT_LINK_ERROR = (
+    'Произошла ошибка при генерации короткой ссылки. '
+    'Пожалуйста, попробуйте позже.'
+)
 
 # Локализация ошибок: сериализатор Recipe
 ZERO_INGREDIENTS_IN_RECIPE_ERROR = 'Нужен хотя бы один ингредиент.'
-MAX_NUM_INGREDIENTS_IN_RECIPE_ERROR = f'Максимум {INGREDIENTS_IN_RECIPE_MAX_NUM} ингредиентов.'
+MAX_NUM_INGREDIENTS_IN_RECIPE_ERROR = (
+    f'Максимум {INGREDIENTS_IN_RECIPE_MAX_NUM} ингредиентов.'
+)
 INGREDIENTS_IN_RECIPE_NOT_MAP_ERROR = 'Ингредиенты должны быть словарями.'
 REPEATING_INGREDIENTS_IN_RECIPE_ERROR = 'Ингредиенты не должны повторяться.'
 INGREDIENT_IN_RECIPE_NOT_FOUND = 'Ингредиент с id={id} не найден.'
-MIN_MAX_INGREDIENTS_IN_RECIPE_ERROR = f'Количество должно быть от {POS_INT_FIELD_MIN} до {POS_INT_FIELD_MAX}.'
+MIN_MAX_INGREDIENTS_IN_RECIPE_ERROR = (
+    f'Количество должно быть от '
+    f'{POS_INT_FIELD_MIN} до {POS_INT_FIELD_MAX}.'
+)
 
 # Локализация ошибок: вьюсет Recipe
 RECIPE_ALREADY_EXISTS_ERROR = 'Рецепт уже добавлен.'

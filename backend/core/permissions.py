@@ -27,7 +27,7 @@ class UserPermission(BasePermission):
 
         if user.is_staff:
             return True
-        
+
         if action == 'retrieve':
             return True
 

@@ -18,7 +18,11 @@ class UserWithRecipesSerializer(UserSerializer):
         recipes = obj.recipes.all()
         if limit:
             recipes = recipes[:int(limit)]
-        return ShortRecipeSerializer(recipes, many=True, context={'request': request}).data
+        return ShortRecipeSerializer(
+            recipes,
+            many=True,
+            context={'request': request}
+        ).data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
