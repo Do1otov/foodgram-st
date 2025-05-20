@@ -1,0 +1,23 @@
+[
+  {
+    "email": "user1@test.ru",
+    "username": "user1",
+    "first_name": "Алексей",
+    "last_name": "Петров",
+    "password": "user1"
+  },
+  {
+    "email": "user2@test.ru",
+    "username": "user2",
+    "first_name": "Елена",
+    "last_name": "Смирнова",
+    "password": "user2"
+  },
+  {
+    "email": "user3@test.ru",
+    "username": "user3",
+    "first_name": "Иван",
+    "last_name": "Козлов",
+    "password": "user3"
+  }
+]
