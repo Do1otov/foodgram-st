@@ -45,7 +45,7 @@ class Command(BaseCommand):
             match = image_format_re.match(image_data)
             if not match:
                 self.stdout.write(self.style.ERROR(
-                    f'Неверный формат изображения. Пропуск рецепта.'
+                    'Неверный формат изображения. Пропуск рецепта.'
                 ))
                 continue
 

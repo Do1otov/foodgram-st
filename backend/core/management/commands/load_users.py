@@ -26,7 +26,9 @@ class Command(BaseCommand):
         for user_data in users_data:
             if User.objects.filter(username=user_data['username']).exists():
                 self.stdout.write(
-                    self.style.WARNING(f'Пользователь {user_data["username"]} уже существует')
+                    self.style.WARNING(
+                        f'Пользователь {user_data["username"]} уже существует'
+                    )
                 )
                 continue
 
