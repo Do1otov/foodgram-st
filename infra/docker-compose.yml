@@ -45,7 +45,6 @@ services:
       - backend_static_data:/backend_static/
     depends_on:
       - backend
-      - frontend
 
 volumes:
   pg_data:
