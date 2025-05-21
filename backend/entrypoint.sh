@@ -21,8 +21,8 @@ if [ "$INIT_DB" = "true" ]; then
       --noinput \
       --email "$DJANGO_SUPERUSER_EMAIL" \
       --username "$DJANGO_SUPERUSER_USERNAME" \
-      --first_name "$DJANGO_SUPERUSER_FIRSTNAME" \
-      --last_name "$DJANGO_SUPERUSER_LASTNAME"
+      --first_name "$DJANGO_SUPERUSER_USERNAME" \
+      --last_name "$DJANGO_SUPERUSER_USERNAME"
   fi
 else
   echo "INIT_DB не указан или не равен 'true' — пропуск загрузки данных"

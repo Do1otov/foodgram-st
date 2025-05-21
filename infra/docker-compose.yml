@@ -10,19 +10,12 @@ services:
   backend:
     container_name: foodgram-back
     build: ../backend
-    command: gunicorn project.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ../backend:/app
       - media_data:/app/media/
       - backend_static_data:/app/backend_static/
     env_file:
-    - ../backend/.env
-    environment:
-      DJANGO_SUPERUSER_EMAIL: admin@admin.com
-      DJANGO_SUPERUSER_USERNAME: admin
-      DJANGO_SUPERUSER_FIRSTNAME: admin
-      DJANGO_SUPERUSER_LASTNAME: admin
-      DJANGO_SUPERUSER_PASSWORD: admin
+      - ./.env
     expose:
       - 8000
     depends_on:
@@ -52,6 +45,7 @@ services:
       - backend_static_data:/backend_static/
     depends_on:
       - backend
+      - frontend
 
 volumes:
   pg_data:
