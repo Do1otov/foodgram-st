@@ -76,7 +76,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@main
+        uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
@@ -88,8 +88,6 @@ jobs:
             docker image prune -f
             docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
             docker compose up -d --build
-            docker compose exec -T backend python manage.py migrate
-            docker compose exec -T backend python manage.py collectstatic --no-input
 
   notify:
     name: Notify via Telegram
