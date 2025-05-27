@@ -41,7 +41,7 @@ jobs:
       - name: Install frontend deps and build
         run: |
           cd frontend
-          npm ci
+          npm ci --legacy-peer-deps
           npm run build
 
   push-backend-image:
