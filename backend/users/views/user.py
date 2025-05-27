@@ -60,11 +60,10 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        elif request.method == 'DELETE':
-            user.avatar.delete(save=True)
-            return Response(
-                status=status.HTTP_204_NO_CONTENT
-            )
+        user.avatar.delete(save=True)
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(detail=False, methods=['post'], url_path='set_password')
     def set_password(self, request):
