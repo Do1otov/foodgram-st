@@ -1,4 +1,10 @@
 #!/bin/sh
+
+until nc -z $DB_HOST $DB_PORT; do
+  echo "Ожидание базы данных на $DB_HOST:$DB_PORT..."
+  sleep 1
+done
+
 echo "Миграции..."
 python manage.py migrate --noinput
 
