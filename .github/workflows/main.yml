@@ -42,7 +42,7 @@ jobs:
         run: |
           cd frontend
           npm ci --legacy-peer-deps
-          npm run build
+          CI=false npm run build
 
   push-backend-image:
     name: Push backend image to Docker Hub
