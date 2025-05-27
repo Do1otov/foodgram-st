@@ -87,7 +87,7 @@ jobs:
             docker compose rm -f foodgram-back
             docker image prune -f
             docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend:latest
-            docker compose up -d --build
+            docker compose -f docker-compose.prod.yml up -d
 
   notify:
     name: Notify via Telegram
