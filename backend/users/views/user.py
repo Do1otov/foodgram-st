@@ -7,7 +7,8 @@ from core.constants import (ALREADY_SUBSCRIBED_ERROR,
                             NOT_SUBSCRIBED_ERROR, PAGE_NOT_FOUND_ERROR,
                             REQUIRED_FIELD_ERROR, SUBSCRIBE_TO_YOURSELF_ERROR)
 from core.pagination import LimitPageNumberPagination
-from core.permissions import UserPermission
+from rest_framework.permissions import IsAuthenticated
+from core.permissions import IsSelfOrAdmin, IsAuthenticatedOrReadOnlyUser
 
 from ..models import Subscription, User
 from ..serializers import (UserCreateSerializer, UserSerializer,
@@ -16,13 +17,23 @@ from ..serializers import (UserCreateSerializer, UserSerializer,
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = [UserPermission]
     pagination_class = LimitPageNumberPagination
 
     def get_serializer_class(self):
         if self.action == 'create':
             return UserCreateSerializer
         return UserSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'create']:
+            permission_classes = [IsAuthenticatedOrReadOnlyUser]
+        elif self.action in ['me', 'avatar', 'set_password', 'subscribe', 'unsubscribe', 'subscriptions']:
+            permission_classes = [IsAuthenticated]
+        elif self.action in ['update', 'partial_update', 'destroy']:
+            permission_classes = [IsSelfOrAdmin]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):

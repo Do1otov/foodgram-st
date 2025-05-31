@@ -10,7 +10,7 @@ from core.constants import (MONTHS_IN_RUSSIAN_MAP, RECIPE_ALREADY_EXISTS_ERROR,
                             RECIPE_NOT_FOUND_ERROR, SHOPPING_CART_EMPTY_ERROR,
                             SHORT_LINK_PREFIX)
 from core.pagination import LimitPageNumberPagination
-from core.permissions import RecipePermission
+from core.permissions import IsAuthorOrAdminOrReadOnly
 
 from ..filters import RecipeFilter
 from ..models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
@@ -20,7 +20,7 @@ from ..serializers import RecipeSerializer, ShortRecipeSerializer
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = [RecipePermission]
+    permission_classes = [IsAuthorOrAdminOrReadOnly]
     pagination_class = LimitPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
