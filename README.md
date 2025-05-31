@@ -54,6 +54,7 @@ SECRET_KEY=your-secret-key
 ALLOWED_HOSTS=localhost,127.0.0.1
 
 # DB
+USE_PGSQL=true
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=foodgram
 DB_USER=postgres
