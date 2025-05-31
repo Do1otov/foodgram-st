@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.constants import (RECIPE_NOT_FOUND_ERROR,
-                            RECIPE_SHORT_LINK_REDIRECT_URL)
+                            RECIPE_URL)
 
 from ..models import Recipe
 
@@ -19,7 +19,9 @@ class ShortLinkRedirectView(APIView):
         except Recipe.DoesNotExist:
             raise NotFound(RECIPE_NOT_FOUND_ERROR)
 
-        redirect_url = RECIPE_SHORT_LINK_REDIRECT_URL.format(id=recipe.id)
+        redirect_path = RECIPE_URL.format(id=recipe.id)
+        redirect_url = request.build_absolute_uri(redirect_path)
+
         return Response(
             data={'detail': 'Redirecting'},
             status=status.HTTP_302_FOUND,
