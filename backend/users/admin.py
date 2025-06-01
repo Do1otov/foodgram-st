@@ -1,6 +1,10 @@
+from django.contrib.auth.models import Group
 from django.contrib import admin
 
 from .models import Subscription, User
+
+
+admin.site.unregister(Group)
 
 
 @admin.register(User)
