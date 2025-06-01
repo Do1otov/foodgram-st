@@ -121,13 +121,13 @@ class UserViewSet(viewsets.ModelViewSet):
                 {'detail': SUBSCRIBE_TO_YOURSELF_ERROR},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        if Subscription.objects.filter(user=user, author=author).exists():
+        if user.subscriptions.filter(author=author).exists():
             return Response(
                 {'detail': ALREADY_SUBSCRIBED_ERROR},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        Subscription.objects.create(user=user, author=author)
+        user.subscriptions.create(author=author)
         serializer = UserWithRecipesSerializer(
             author,
             context={'request': request}
@@ -148,7 +148,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        subscription = Subscription.objects.filter(user=user, author=author)
+        subscription = user.subscriptions.filter(author=author)
         if not subscription.exists():
             return Response(
                 {'detail': NOT_SUBSCRIBED_ERROR},
@@ -162,11 +162,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(subscribers__user=user)
+        subscriptions = request.user.subscriptions.select_related('author')
+        authors = [sub.author for sub in subscriptions]
 
         paginator = LimitPageNumberPagination()
-        result_page = paginator.paginate_queryset(queryset, request)
+        result_page = paginator.paginate_queryset(authors, request)
 
         serializer = UserWithRecipesSerializer(
             result_page,
