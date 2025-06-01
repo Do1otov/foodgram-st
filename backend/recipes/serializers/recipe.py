@@ -124,13 +124,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients')
 
-        recipe = super().update(instance, validated_data)
+        super().update(instance, validated_data)
 
         if ingredients_data is not None:
             instance.ingredient_links.all().delete()
             self.add_ingredients(instance, ingredients_data)
 
-        return recipe
+        return instance
 
     def to_representation(self, instance):
         return RecipeReadSerializer(
