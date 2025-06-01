@@ -8,9 +8,11 @@ class IsSelfOrAdmin(BasePermission):
 
 class IsAuthenticatedOrReadOnlyUser(BasePermission):
     def has_permission(self, request, view):
-        if view.action in ['list', 'retrieve', 'create']:
-            return True
-        return request.user and request.user.is_authenticated
+        return (
+            request.method in SAFE_METHODS
+            or request.method == 'POST'
+            or request.user and request.user.is_authenticated
+        )
 
 
 class IsAuthorOrAdminOrReadOnly(BasePermission):

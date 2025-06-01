@@ -72,14 +72,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if self.context['request'].method == 'POST':
-            if (
-                'image' not in self.initial_data
-                or not self.initial_data.get('image')
-            ):
-                raise serializers.ValidationError({
-                    'image': REQUIRED_FIELD_ERROR
-                })
+        if (
+            'image' not in self.initial_data
+            or not self.initial_data.get('image')
+        ):
+            raise serializers.ValidationError({
+                'image': REQUIRED_FIELD_ERROR
+            })
 
         ingredients = self.initial_data.get('ingredients')
         if ingredients is None:
