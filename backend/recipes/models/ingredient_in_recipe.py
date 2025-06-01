@@ -2,7 +2,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from core.constants import POS_INT_FIELD_MAX, POS_INT_FIELD_MIN
-
 from .ingredient import Ingredient
 from .recipe import Recipe
 

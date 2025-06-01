@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.constants import RECIPE_NOT_FOUND_ERROR, RECIPE_URL
-
 from ..models import Recipe
 
 

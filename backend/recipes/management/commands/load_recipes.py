@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 
 from recipes.models import Ingredient, IngredientInRecipe, Recipe
 
+
 User = get_user_model()
 
 image_format_re = re.compile(r'data:image/(?P<ext>[^;]+);base64,(?P<data>.+)')

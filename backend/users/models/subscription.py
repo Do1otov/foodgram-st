@@ -1,7 +1,7 @@
-from django.db import models
 from django.core.exceptions import ValidationError
-from core.constants import SUBSCRIBE_TO_YOURSELF_ERROR
+from django.db import models
 
+from core.constants import SUBSCRIBE_TO_YOURSELF_ERROR
 from .user import User
 
 

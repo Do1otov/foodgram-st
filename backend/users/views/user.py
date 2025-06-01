@@ -3,16 +3,22 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core.constants import (ALREADY_SUBSCRIBED_ERROR,
-                            INCORRECT_CURRENT_PASSWORD_ERROR,
-                            NOT_SUBSCRIBED_ERROR, PAGE_NOT_FOUND_ERROR,
-                            REQUIRED_FIELD_ERROR, SUBSCRIBE_TO_YOURSELF_ERROR)
+from core.constants import (
+    ALREADY_SUBSCRIBED_ERROR,
+    INCORRECT_CURRENT_PASSWORD_ERROR,
+    NOT_SUBSCRIBED_ERROR,
+    PAGE_NOT_FOUND_ERROR,
+    REQUIRED_FIELD_ERROR,
+    SUBSCRIBE_TO_YOURSELF_ERROR,
+)
 from core.pagination import LimitPageNumberPagination
 from core.permissions import IsAuthenticatedOrReadOnlyUser, IsSelfOrAdmin
-
-from ..models import Subscription, User
-from ..serializers import (UserCreateSerializer, UserSerializer,
-                           UserWithRecipesSerializer)
+from ..models import User
+from ..serializers import (
+    UserCreateSerializer,
+    UserSerializer,
+    UserWithRecipesSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -27,7 +33,10 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'create']:
             permission_classes = [IsAuthenticatedOrReadOnlyUser]
-        elif self.action in ['me', 'avatar', 'set_password', 'subscribe', 'unsubscribe', 'subscriptions']:
+        elif self.action in [
+            'me', 'avatar', 'set_password',
+            'subscribe', 'unsubscribe', 'subscriptions'
+        ]:
             permission_classes = [IsAuthenticated]
         elif self.action in ['update', 'partial_update', 'destroy']:
             permission_classes = [IsSelfOrAdmin]

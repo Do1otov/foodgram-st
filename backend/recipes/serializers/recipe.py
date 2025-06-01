@@ -1,21 +1,26 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
-from core.constants import (INGREDIENTS_IN_RECIPE_MAX_NUM,
-                            MAX_NUM_INGREDIENTS_IN_RECIPE_ERROR,
-                            REPEATING_INGREDIENTS_IN_RECIPE_ERROR,
-                            REQUIRED_FIELD_ERROR,
-                            ZERO_INGREDIENTS_IN_RECIPE_ERROR)
+from core.constants import (
+    INGREDIENTS_IN_RECIPE_MAX_NUM,
+    MAX_NUM_INGREDIENTS_IN_RECIPE_ERROR,
+    REPEATING_INGREDIENTS_IN_RECIPE_ERROR,
+    REQUIRED_FIELD_ERROR,
+    ZERO_INGREDIENTS_IN_RECIPE_ERROR,
+)
 from users.serializers import UserSerializer
-
 from ..models import IngredientInRecipe, Recipe
-from .ingredient import (IngredientInRecipeReadSerializer,
-                         IngredientInRecipeWriteSerializer)
+from .ingredient import (
+    IngredientInRecipeReadSerializer,
+    IngredientInRecipeWriteSerializer,
+)
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
-    author = UserSerializer(read_only=True)
+    author = UserSerializer(
+        read_only=True
+    )
     ingredients = IngredientInRecipeReadSerializer(
         source='ingredient_links',
         many=True,
@@ -33,22 +38,31 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         user = self.context['request'].user
-        return not user.is_anonymous and obj.favorite.filter(user=user).exists()
+        return (
+            not user.is_anonymous
+            and obj.favorite.filter(user=user).exists()
+        )
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context['request'].user
-        return not user.is_anonymous and obj.shopping_cart.filter(user=user).exists()
+        return (
+            not user.is_anonymous
+            and obj.shopping_cart.filter(user=user).exists()
+        )
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    image = Base64ImageField( 
+    image = Base64ImageField(
         max_length=None,
         use_url=True,
         required=True,
         allow_null=False,
         allow_empty_file=False
     )
-    ingredients = IngredientInRecipeWriteSerializer(many=True, write_only=True)
+    ingredients = IngredientInRecipeWriteSerializer(
+        many=True,
+        write_only=True
+    )
 
     class Meta:
         model = Recipe
@@ -58,7 +72,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if 'image' not in self.initial_data or not self.initial_data.get('image'):
+        if (
+            'image' not in self.initial_data
+            or not self.initial_data.get('image')
+        ):
             raise serializers.ValidationError({
                 'image': REQUIRED_FIELD_ERROR
             })

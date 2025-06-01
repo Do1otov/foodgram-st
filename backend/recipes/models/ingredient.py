@@ -1,9 +1,11 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
 
-from core.constants import (CHAR_FIELD_MIN_LEN,
-                            INGREDIENT_MEASUREMENT_UNIT_MAX_LEN,
-                            INGREDIENT_NAME_MAX_LEN)
+from core.constants import (
+    CHAR_FIELD_MIN_LEN,
+    INGREDIENT_MEASUREMENT_UNIT_MAX_LEN,
+    INGREDIENT_NAME_MAX_LEN,
+)
 
 
 class Ingredient(models.Model):
@@ -12,14 +14,14 @@ class Ingredient(models.Model):
         validators=[
             MinLengthValidator(CHAR_FIELD_MIN_LEN)
         ],
-        verbose_name='Название'
+        verbose_name='Название',
     )
     measurement_unit = models.CharField(
         max_length=INGREDIENT_MEASUREMENT_UNIT_MAX_LEN,
         validators=[
             MinLengthValidator(CHAR_FIELD_MIN_LEN)
         ],
-        verbose_name='Единица измерения'
+        verbose_name='Единица измерения',
     )
 
     class Meta:

@@ -1,12 +1,15 @@
 from rest_framework import serializers
 
-from .user import UserSerializer
 from recipes.serializers.short_recipe import ShortRecipeSerializer
+from .user import UserSerializer
 
 
 class UserWithRecipesSerializer(UserSerializer):
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.IntegerField(source='recipes.count', read_only=True)
+    recipes_count = serializers.IntegerField(
+        source='recipes.count',
+        read_only=True
+    )
 
     class Meta(UserSerializer.Meta):
         fields = UserSerializer.Meta.fields + ('recipes', 'recipes_count')

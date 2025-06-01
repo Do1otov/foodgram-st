@@ -1,17 +1,24 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.core.validators import (MaxValueValidator, MinLengthValidator,
-                                    MinValueValidator)
+from django.core.validators import (
+    MaxValueValidator,
+    MinLengthValidator,
+    MinValueValidator,
+)
 from django.db import models
 
-from core.constants import (CHAR_FIELD_MIN_LEN, GENERATE_SHORT_LINK_ERROR,
-                            POS_INT_FIELD_MAX, POS_INT_FIELD_MIN,
-                            RECIPE_NAME_MAX_LEN,
-                            RECIPE_SHORT_LINK_CODE_MAX_LEN,
-                            SHORT_LINK_CODE_MAX_ATTEMPTS_GENERATE)
+from core.constants import (
+    CHAR_FIELD_MIN_LEN,
+    GENERATE_SHORT_LINK_ERROR,
+    POS_INT_FIELD_MAX,
+    POS_INT_FIELD_MIN,
+    RECIPE_NAME_MAX_LEN,
+    RECIPE_SHORT_LINK_CODE_MAX_LEN,
+    SHORT_LINK_CODE_MAX_ATTEMPTS_GENERATE,
+)
 from core.utils import generate_short_link_code
-
 from .ingredient import Ingredient
+
 
 User = get_user_model()
 

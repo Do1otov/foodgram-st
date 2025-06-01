@@ -4,10 +4,16 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from core.constants import (CHAR_FIELD_MIN_LEN, USER_EMAIL_MAX_LEN,
-                            USER_FIRST_NAME_ERROR, USER_FIRST_NAME_MAX_LEN,
-                            USER_LAST_NAME_ERROR, USER_LAST_NAME_MAX_LEN,
-                            USER_USERNAME_ERROR, USER_USERNAME_MAX_LEN)
+from core.constants import (
+    CHAR_FIELD_MIN_LEN,
+    USER_EMAIL_MAX_LEN,
+    USER_FIRST_NAME_ERROR,
+    USER_FIRST_NAME_MAX_LEN,
+    USER_LAST_NAME_ERROR,
+    USER_LAST_NAME_MAX_LEN,
+    USER_USERNAME_ERROR,
+    USER_USERNAME_MAX_LEN,
+)
 
 
 class User(AbstractUser):
