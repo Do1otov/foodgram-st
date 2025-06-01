@@ -13,7 +13,7 @@ class UserAdmin(admin.ModelAdmin):
         'id', 'email', 'username', 'first_name',
         'last_name', 'is_active', 'is_staff'
     )
-    search_fields = ('email', 'username')
+    search_fields = ('email', 'username', 'first_name', 'last_name')
     list_filter = ('is_active', 'is_staff')
     ordering = ('-date_joined',)
 
