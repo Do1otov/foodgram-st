@@ -120,11 +120,3 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             instance,
             context=self.context
         ).data
-
-
-class ShortRecipeSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')

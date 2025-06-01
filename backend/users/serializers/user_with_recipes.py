@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .user import UserSerializer
-
+from recipes.serializers.short_recipe import ShortRecipeSerializer
 
 
 class UserWithRecipesSerializer(UserSerializer):
@@ -12,7 +12,6 @@ class UserWithRecipesSerializer(UserSerializer):
         fields = UserSerializer.Meta.fields + ('recipes', 'recipes_count')
 
     def get_recipes(self, obj):
-        from recipes.serializers import ShortRecipeSerializer
         request = self.context.get('request')
         limit = request.query_params.get('recipes_limit')
 
