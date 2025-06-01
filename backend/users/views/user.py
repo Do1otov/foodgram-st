@@ -1,5 +1,6 @@
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from core.constants import (ALREADY_SUBSCRIBED_ERROR,
@@ -7,8 +8,7 @@ from core.constants import (ALREADY_SUBSCRIBED_ERROR,
                             NOT_SUBSCRIBED_ERROR, PAGE_NOT_FOUND_ERROR,
                             REQUIRED_FIELD_ERROR, SUBSCRIBE_TO_YOURSELF_ERROR)
 from core.pagination import LimitPageNumberPagination
-from rest_framework.permissions import IsAuthenticated
-from core.permissions import IsSelfOrAdmin, IsAuthenticatedOrReadOnlyUser
+from core.permissions import IsAuthenticatedOrReadOnlyUser, IsSelfOrAdmin
 
 from ..models import Subscription, User
 from ..serializers import (UserCreateSerializer, UserSerializer,

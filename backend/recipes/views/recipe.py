@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.utils.timezone import localdate
 from django_filters.rest_framework import DjangoFilterBackend
@@ -14,16 +15,26 @@ from core.permissions import IsAuthorOrAdminOrReadOnly
 
 from ..filters import RecipeFilter
 from ..models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
-from ..serializers import RecipeSerializer, ShortRecipeSerializer
+from ..serializers import (RecipeReadSerializer, RecipeWriteSerializer,
+                           ShortRecipeSerializer)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
     permission_classes = [IsAuthorOrAdminOrReadOnly]
     pagination_class = LimitPageNumberPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return RecipeReadSerializer
+        return RecipeWriteSerializer
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return RecipeReadSerializer
+        return RecipeWriteSerializer
 
     def get_object_or_404_recipe(self, pk):
         try:
@@ -120,26 +131,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        recipe_names = sorted(recipes.values_list('name', flat=True))
         date = localdate()
         date_str = (
             f'{date.day} {MONTHS_IN_RUSSIAN_MAP[date.month]} {date.year} г.'
         )
+
+        recipe_names = sorted(recipes.values_list('name', flat=True))
         recipe_line = (
             f'{"Рецепт" if len(recipe_names) == 1 else "Рецепты"}: '
             f'{", ".join(recipe_names)}.'
         )
 
-        ingredients = {}
-        for item in IngredientInRecipe.objects.filter(recipe__in=recipes):
-            name = item.ingredient.name.capitalize()
-            key = (name, item.ingredient.measurement_unit)
-            ingredients[key] = ingredients.get(key, 0) + item.amount
-
-        sorted_items = sorted(ingredients.items(), key=lambda x: x[0][0])
+        ingredients = (
+            IngredientInRecipe.objects
+            .filter(recipe__in=recipes)
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .annotate(total_amount=Sum('amount'))
+            .order_by('ingredient__name')
+        )
 
         lines = [f'Список покупок от {date_str}', recipe_line, 'Продукты:']
-        for i, ((name, unit), amount) in enumerate(sorted_items, 1):
+        for i, item in enumerate(ingredients, 1):
+            name = item['ingredient__name'].capitalize()
+            unit = item['ingredient__measurement_unit']
+            amount = item['total_amount']
             lines.append(f'{i}. {name} — {amount} {unit}.')
 
         response = HttpResponse(

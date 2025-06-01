@@ -2,11 +2,11 @@ import base64
 import json
 import re
 
+from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
-from django.contrib.auth import get_user_model
 
-from recipes.models import Recipe, Ingredient, IngredientInRecipe
+from recipes.models import Ingredient, IngredientInRecipe, Recipe
 
 User = get_user_model()
 
