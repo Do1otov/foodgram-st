@@ -171,8 +171,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
-        subscriptions = request.user.subscriptions.select_related('author')
-        authors = [sub.author for sub in subscriptions]
+        authors = User.objects.filter(subscribers__user=request.user)
 
         paginator = LimitPageNumberPagination()
         result_page = paginator.paginate_queryset(authors, request)
