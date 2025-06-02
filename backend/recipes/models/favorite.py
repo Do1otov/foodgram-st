@@ -10,19 +10,27 @@ class Favorite(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='favorites',
+        verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         'Recipe',
         on_delete=models.CASCADE,
         related_name='favorite',
+        verbose_name='Рецепт',
     )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=[
+                    'user',
+                    'recipe'
+                ],
                 name='unique_favorite'
             )
         ]
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные рецепты'
+
+    def __str__(self):
+        return f'Избранное: {self.user} - {self.recipe}'

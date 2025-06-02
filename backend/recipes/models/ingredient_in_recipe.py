@@ -11,10 +11,12 @@ class IngredientInRecipe(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='ingredient_links',
+        verbose_name='Рецепт',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
     )
     amount = models.PositiveSmallIntegerField(
         validators=[
@@ -25,7 +27,7 @@ class IngredientInRecipe(models.Model):
     )
 
     class Meta:
-        verbose_name = 'ингредиента в рецепте'
+        verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
         constraints = [
             models.UniqueConstraint(
